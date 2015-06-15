@@ -1,6 +1,6 @@
 ---
 layout: default
-title: About Long Haul
+title: About Edward Heyne
 ---
 
 <div class="post">
