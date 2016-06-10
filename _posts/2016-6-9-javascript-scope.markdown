@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Post With A Code Snippet"
+title:  "JavaScript Scope"
 date:   2016-6-9
 ---
 
@@ -8,15 +8,37 @@ date:   2016-6-9
 
 Here's the code that tripped me up:
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
+{% highlight javascript %}
+var user = {
+  index: 0,
+  clickHandler: function(event) {
+    this.index++;
+    console.log('index is ', this.index);
+  }
+};
+
+var button = document.getElementById('btnTest');
+button.addEventListener('click', user.clickHandler, false);
 {% endhighlight %}
 
-Check out the [Jekyll docs][jekyll] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll's GitHub repo][jekyll-gh].
+The question was, "What is the value of this.index inside of the clickHandler in the console.log statement?".
 
-[jekyll-gh]: https://github.com/mojombo/jekyll
-[jekyll]:    http://jekyllrb.com
+At a first quick glance it appeared to be 1.  However looking it over a bit more, realizing that clickHandler was an anonymous function, `this` looked like it might be `window` so the value of `index` was `undefined`.  Well the answer to this question is that this.index is actually `NaN`.  `this` was actually the DOM object of the button.  Since the button did not have an attribute with the name of index, when we try to add 1 to undefined we get that value of `NaN`.  So therefore we have to tell clickHandler to take on a new `this`.  So far I have discovered 3 different ways of handling this.
+
+The first way is to change `this` to `user` like so:
+
+{% highlight javascript %}
+var user = {
+  index: 0,
+  clickHandler: function(event) {
+    user.index++;
+    console.log('index is ', user.index);
+  }
+};
+
+var button = document.getElementById('btnTest');
+button.addEventListener('click', user.clickHandler, false);
+{% endhighlight %}
+
+
+This uses the concept where the name of the object is in scope to all local properties and functions.
